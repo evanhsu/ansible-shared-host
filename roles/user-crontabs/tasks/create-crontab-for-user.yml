@@ -1,0 +1,21 @@
+---
+
+- name: Remove the 'cron_jobs' temp file from {{ user.name }}'s home folder
+  become: yes
+  file:
+    path: /home/{{ user.name }}/cron_jobs
+    state: absent
+
+- name: Add cron entry to temp file for {{user.name}}
+  become: yes
+  lineinfile:
+    dest: /home/{{ user.name }}/cron_jobs
+    line: "{{ item }}"
+    state: present
+    create: yes
+  when: "{{ item is defined }}"
+  with_items: "{{ user.cron }}"
+
+- name: Create crontab for {{ user.name }}
+  become: yes
+  command: crontab -u {{ user.name }} /home/{{ user.name }}/cron_jobs

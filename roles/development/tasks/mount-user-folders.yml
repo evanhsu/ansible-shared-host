@@ -1,0 +1,5 @@
+- name: Establish symlinkd between development mount and home folder for {{ item.name }}
+  file: src=/development/{{ mount.source }} dest={{ mount.destination }} owner={{ item.name }} group={{ item.name }} state=link
+  with_items: "{{ item.mounts }}"
+  loop_control:
+    loop_var: mount

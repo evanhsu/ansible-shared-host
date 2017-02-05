@@ -1,0 +1,4 @@
+---
+- name: Install Global NPM Packages for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} npm install -g {{ item.name }}"
+  with_items: "{{ user.nodejs.packages }}"

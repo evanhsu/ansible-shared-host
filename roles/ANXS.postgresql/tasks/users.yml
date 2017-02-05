@@ -1,0 +1,28 @@
+# file: postgresql/tasks/users.yml
+
+- name: PostgreSQL | Make sure the PostgreSQL users are present
+  postgresql_user:
+    name: "{{user.name}}"
+    password: "{{ user.pass | default(omit) }}"
+    encrypted: "{{ user.encrypted | default(omit) }}"
+    port: "{{postgresql_port}}"
+    state: present
+    login_user: "{{postgresql_admin_user}}"
+  become: yes
+  become_user: "{{postgresql_admin_user}}"
+  when:
+    - user.databases is defined
+    - "{{ user.databases | length > 0 }}"
+
+- include: databases.yml
+  tags: [postgresql, postgresql-databases]
+  with_items: user.databases
+  loop_control:
+    loop_var: db
+
+- include: users_privileges.yml
+  tags: [postgresql, postgresql-users]
+  with_items:
+    - user.databases
+  loop_control:
+    loop_var: db

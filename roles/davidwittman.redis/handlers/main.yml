@@ -1,0 +1,15 @@
+---
+
+- name: "restart redis"
+  service:
+    name: "{{ redis_service_name }}"
+    state: restarted
+#    deamon_reload: yes
+  when: redis_as_service
+
+- name: "restart sentinel"
+  service:
+    name: sentinel_{{ redis_sentinel_port }}
+    state: restarted
+#    deamon_reload: yes
+  when: redis_as_service

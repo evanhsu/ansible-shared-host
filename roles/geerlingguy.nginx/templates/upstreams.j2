@@ -1,0 +1,61 @@
+
+upstream {{ vhost.name }} {
+
+    {% for server in vhost.servers %}
+    server {{ server }};
+    {% endfor %}
+    keepalive {{ vhost.keepalive | default("64") }};
+}
+
+server {
+
+    listen {{ vhost.listen | default('80') }};
+
+    {% if vhost.server_name is defined %}
+    server_name {{ vhost.server_name }} {{ vhost.server_aliases | default('') | join(",") }};
+    {% endif %}
+
+    {% if vhost.root is defined %}
+    root {{ vhost.root }};
+    {% endif %}
+
+    index {{ vhost.index | default('index.php index.html index.htm') }};
+
+    {% if vhost.error_page is defined %}
+    error_page {{ vhost.error_page }};
+    {% endif %}
+
+    access_log {{ nginx_access_log_path }} {{ nginx_access_log_opts }};
+    error_log {{ nginx_error_log_path }} {{ nginx_error_log_level }};
+
+    {% if vhost.return is defined %}
+    return {{ vhost.return }};
+    {% endif %}
+
+    {% if vhost.extra_parameters is defined %}
+    {{ vhost.extra_parameters }}
+    {% endif %}
+
+    {% if 'staging' in group_names %}
+    location /robots.txt {
+        alias /var/www/html/robots.txt;
+    }
+    {% endif %}
+
+    location {{ vhost.location }} {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host  $http_host;
+        proxy_set_header X-Nginx-Proxy true;
+        proxy_set_header Connection "";
+        proxy_pass http://{{ vhost.name }};
+
+        {% if http is defined and http.auth_password is defined %}
+            proxy_set_header Authorization "Basic {{ (http.auth_username ~ ':' ~ http.auth_password) | b64encode }}";
+        {% endif %}
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}

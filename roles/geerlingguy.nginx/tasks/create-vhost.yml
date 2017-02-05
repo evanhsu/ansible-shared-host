@@ -1,0 +1,79 @@
+---
+
+- set_fact:
+    nginx_vhosts_filename: "{{ vhost.server_name }}_{{ vhost.listen | default('80') | replace(' ','_') }}"
+    nginx_error_log_path: "/home/{{ user.name }}/logs/{{ vhost.server_name }}-{{ nginx_error_log_suffix }}"
+    nginx_access_log_path: "/home/{{ user.name }}/logs/{{ vhost.server_name }}-{{ nginx_access_log_suffix }}"
+
+- name: Add managed vhost config file
+  template:
+    src: "{{ (upstream is defined and upstream == 'true') | ternary('upstreams.j2','vhosts.j2') }}"
+    dest: "{{ nginx_vhost_path }}/{{ nginx_vhosts_filename }}"
+    mode: 0644
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    force: yes
+  notify:
+    - reload nginx
+
+- block:
+  - name: ensure nginx ssl certificate and key are created
+    copy:
+      src: ssl-certificates/{{ item }}
+      dest: /etc/nginx/ssl/{{ item }}
+      mode: 0600
+      owner: "{{ nginx_user }}"
+      group: "{{ nginx_user }}"
+      force: yes
+    with_items:
+      - "{{ vhost.ssl.ssl_cert_filename }}"
+      - "{{ vhost.ssl.ssl_key_filename }}"
+    notify:
+      - reload nginx
+  when: "vhost.ssl is defined"
+
+- name: Touch the nginx logfiles for a vhost
+  file:
+    path: "{{ log_filename }}"
+    state: touch
+    owner: "{{ user.name }}"
+    group: "{{ nginx_user }}"
+    mode: 0777
+  with_items:
+    - "{{ nginx_error_log_path }}"
+    - "{{ nginx_access_log_path }}"
+  loop_control:
+    loop_var: log_filename
+  notify:
+    - reload nginx
+
+- name: Create symlink in sites-enabled
+  file:
+    src: "{{ nginx_vhost_path }}/{{ nginx_vhosts_filename }}"
+    dest: "{{ nginx_sites_enabled_path }}/{{ nginx_vhosts_filename }}"
+    state: link
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+  notify:
+    - reload nginx
+    - restart php-fpm
+
+- name: Check if document root for {{ vhost.server_name }} exists
+  stat: path={{ vhost.root }}
+  register: check_path
+  when:
+    - "IS_VAGRANT is not defined"
+    - "vhost.root is defined"
+
+- name: Create document root for {{ vhost.server_name }}
+  file:
+    path: "{{ vhost.root }}"
+    state: directory
+    owner: "{{ user.name }}"
+    group: "{{ user.name }}"
+  when:
+    - "IS_VAGRANT is not defined"
+    - "vhost.root is defined"
+    - "check_path.stat.exists == false"
+
+

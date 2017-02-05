@@ -1,0 +1,14 @@
+---
+
+- name: Install nvm
+  become: yes
+  become_user: "{{ user.name }}"
+  git: repo={{ nvm_repo }} force=yes dest="/home/{{ user.name }}/.nvm" version={{ nvm_version }} accept_hostkey=true
+  tags: nvm
+
+- name: Source nvm in ~/.bashrc
+  lineinfile: >
+    dest=/home/{{ user.name }}/.profile
+    line="source {{ nvm_root }}/nvm.sh"
+    create=yes
+  tags: nvm

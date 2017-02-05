@@ -1,0 +1,12 @@
+---
+
+- name: Reset all UFW firewall rules
+  ufw: state=reset
+
+- name: Set UFW policy to {{ ufw_policy }}
+  ufw: state=enabled policy={{ ufw_policy }}
+
+- name: Open firewall ports
+  ufw: rule=allow port={{ item }} proto=tcp
+  with_items:
+    - "{{ ufw_open_tcp_ports }}"

@@ -1,0 +1,66 @@
+---
+# group_vars/production.yml
+# These variables apply to the PRODUCTION environment.
+#
+#
+# This is a list of all the user accounts, vhosts, databases, etc that should exist on the server.
+# The user name will also be used to create a home-folder, a vhost, and a database.
+#
+# NOTE: usernames are limited to 32 characters
+
+# Syntax and options for vhost entries are documented in the Readme.md file.
+
+GROUPS_LIST:
+
+  - &developers
+    name: "developers"
+    id: 1000
+  - &clients
+    name: "clients"
+    id: 1001
+
+
+
+DEVELOPERS_LIST:
+
+  - &evan
+    name: "evan"
+    id: 2002
+    groups:
+      - "developers"
+      - "sudo"
+    ssh_keys:
+      - "evan.pub"
+      - "evan_at_eva.pub"
+
+
+
+CLIENTS_LIST:
+
+  - &siskiyourappellers
+    name: "siskiyourappellers"
+    id: 3000
+    groups:
+      - "clients"
+
+user_groups:
+  - <<: *developers
+  - <<: *clients
+
+users:
+  - <<: *evan
+
+  - <<: *siskiyourappellers
+
+    databases:
+      - name: "siskiyourappellers"
+
+    vhosts:
+      - listen: "80"
+        server_name: "siskiyourappellers.com"
+        server_aliases:
+          - "www.siskiyourappellers.com"
+          - "siskiyou.rappellers.us"
+          - "www.siskiyou.rappellers.us"
+        php: true
+        root: "/home/siskiyourappellers/siskiyourappellers.com/public"

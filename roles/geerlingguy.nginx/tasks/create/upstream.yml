@@ -1,0 +1,24 @@
+---
+
+- name: Add managed vhost config file
+  template:
+    src: upstreams.j2
+    dest: "{{ nginx_vhost_path }}/{{ nginx_vhosts_filename }}"
+    mode: 0644
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    force: yes
+  notify:
+    - reload nginx
+
+# - name: Check if domain folder exists for {{ vhost.server_name }}
+#   stat: path={{ user.name }}/{{ vhost.server_name }}
+#   register: check_path
+#
+# - name: Create domain folder for {{ user.name }}/{{ vhost.server_name }}
+#   file: >
+#     path="{{ user.name }}/{{ vhost.server_name }}"
+#     state=directory
+#     owner="{{ user.name }}"
+#     group="{{ user.name }}"
+#   when: "check_path.stat.exists == false"

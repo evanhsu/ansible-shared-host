@@ -1,0 +1,69 @@
+---
+
+# Tasks for vhost users
+
+- name: Create groups
+  group: name={{ item.name }} gid={{ item.id }} state=present
+  with_items: "{{ user_groups }}"
+
+- name: Create user private groups
+  group: name={{ item.name }} gid={{ item.id }} state=present
+  with_items: "{{ users }}"
+
+- name: Create user accounts
+  user:
+    state: present
+    name: "{{ item.name }}"
+    createhome: "{{ item.create_home | default(true) }}"
+    uid: "{{ item.id }}"
+    group: "{{ item.name }}"
+    groups: "{{ item.groups|join(',') }}"
+    password: "{{ item.password | default(omit) }}"
+    update_password: on_create
+    shell: /bin/bash
+  with_items: "{{ users }}"
+
+- name: Create ftp-user accounts
+  user:
+    state: present
+    name: "{{ item.name }}"
+    createhome: false
+    home: "{{ item.root }}"
+    uid: "{{ item.id }}"
+    group: "ftpusers"
+    groups: "{{ item.groups|join(',') }}"
+    password: "{{ item.password | default(omit) }}"
+    update_password: on_create
+    shell: /sbin/nologin
+  when:
+    - item.name is defined
+  with_items: "{{ FTPUSERS_LIST }}"
+
+- name: chown user home folders to the user
+  file:
+    path: "/home/{{ item.name }}"
+    state: directory
+    recurse: yes
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+  with_items: "{{ users }}"
+  when: "'clients' in item.groups"
+
+- name: Allow 'sudo' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL:ALL) NOPASSWD: ALL'
+
+- name: Allow passwordless privileges for root (su without password)
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%root'
+    line: '%root ALL=(ALL:ALL) NOPASSWD: ALL'
+
+- name: Authorize SSH keys for dev-user if provided
+  include: copy-ssh-key.yml
+  when: item.ssh_keys is defined
+  with_items: "{{ users }}"

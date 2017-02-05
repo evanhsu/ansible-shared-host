@@ -1,0 +1,22 @@
+---
+
+- name: Creating configuration directory for Vim
+  file:
+    state: directory
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0755"
+  with_items:
+    - /etc/vim/colors
+
+- name: Writing config files for Vim
+  template:
+    src: "{{ item }}.j2"
+    dest: "/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  with_items:
+    - "etc/vim/vimrc.local"
+    - "etc/vim/colors/darcula.vim"

@@ -1,0 +1,13 @@
+---
+- name: Create string of privileges (all dbs that this user can access)
+  set_fact: privileges="{{ (user.databases | map(attribute='name') | join('.*:ALL/')) ~ '.*:ALL' }}"
+
+- name: Ensure MySQL users are present.
+  mysql_user:
+    name: "{{ user.name }}"
+    host: "localhost"
+    priv: "{{ privileges }}"
+    state: "present"
+    append_privs: no
+  no_log: false
+  when: user.database_engine is not defined or user.database_engine == "mysql"

@@ -1,0 +1,55 @@
+" {{ ansible_managed }}
+"Settings for VIM
+
+:syntax on
+":colorscheme desert
+:colorscheme darcula " github.com/blueshirts/darcula
+
+" Turn on line numbers
+:set nu
+
+" Set window size
+" set lines=100 columns=150
+
+" Set the timout for key sequences (commands in normal mode)
+set timeoutlen=500 ttimeoutlen=10
+
+" Highlight search results
+set hlsearch
+
+" Set font
+set guifont=Consolas:h10:cANSI
+
+" Set the LEADER key for mappings
+let mapleader = "-"
+
+" Map the key sequence 'jk' to the ESC key to allow exiting insert mode without leaving home-row. Create this mapping to exit visual mode (:vnoremap) without automatically re-selecting anything that was selected using 'gV'.
+:vnoremap jk <Esc>gV
+:onoremap jk <Esc>
+:inoremap jk <Esc>
+
+" Configure splits
+" Set new splits to open on the right or bottom (rather than the default which is opposite)
+set splitbelow
+set splitright
+
+" Move to a different split by pressing CTRL+direction, rather than CTRL+W then direction.
+:nnoremap <C-J> <C-W><C-J>
+:nnoremap <C-K> <C-W><C-K>
+:nnoremap <C-H> <C-W><C-H>
+:nnoremap <C-L> <C-W><C-L>
+
+
+" Jump to function definition from a function call - place the cursor over the function name and type 'gx' to view function definition
+nmap gx yiw/^\(sub\<Bar>function\)\s\+<C-R>"<CR>
+
+" Map a shortcut to open the .vimrc file in a new split
+:nnoremap <leader>ev :vsplit $MYVIMRC<cr>
+
+" Source the .vimrc file (run it as vimscript, which will apply changes without having to restart Vim)
+:nnoremap <leader>sv :source $MYVIMRC<cr>
+
+
+{% for item in vim_config %}
+{{ item }}
+{% endfor %}

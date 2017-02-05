@@ -1,0 +1,52 @@
+# This is the Inventory for the PRODUCTION environment.
+
+[control]
+# This is the address of the CONTROL machine (running the Ansible playbook)
+localhost ansible_connection=local
+
+[droplets]
+# Hostnames of Digital Ocean droplets
+production.portonefive.com2
+
+
+[control:vars]
+droplet_size_id=8gb
+droplet_region_id=sfo2
+droplet_image_id=ubuntu-16-04-x64
+droplet_backups_enabled=yes
+droplet_private_networking=yes
+
+[core]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[http]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[sql]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[postgresql]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[elasticsearch]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[mail]
+# This section is dynamically populated with info from each droplet above
+# Static hosts can be added here (servers with a fixed IP - not cloud servers)
+
+[production:children]
+# This section creates a GROUP named 'production' which automatically loads
+# variables from the 'group_vars/production.yml' file.  This group contains all the same
+# servers as the 'web' group, it simply defines a unique name so that the correct variable file can be auto-loaded.
+core
+http
+sql
+postgresql
+elasticsearch
+mail

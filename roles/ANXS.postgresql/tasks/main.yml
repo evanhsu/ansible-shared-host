@@ -1,0 +1,41 @@
+# file: postgresql/tasks/main.yml
+
+- include_vars: "{{ item }}"
+  with_first_found:
+    - "../vars/{{ ansible_os_family }}.yml"
+    - "../vars/empty.yml"
+  tags: [always]
+
+- include: install.yml
+  when: ansible_pkg_mgr == "apt"
+  tags: [postgresql, postgresql-install]
+
+- include: install_yum.yml
+  when: ansible_pkg_mgr == "yum"
+  tags: [postgresql, postgresql-install]
+
+- include: extensions.yml
+  tags: [postgresql, postgresql-extensions]
+
+- include: configure.yml
+  tags: [postgresql, postgresql-configure]
+
+- name: PostgreSQL | Ensure PostgreSQL is running
+  service:
+    name: "{{ postgresql_service_name }}"
+    state: started
+
+- include: users.yml
+  tags: [postgresql, postgresql-users]
+  with_items:
+    - "{{ users }}"
+  loop_control:
+    loop_var: user
+  when:
+    - user.database_engine is defined
+    - user.database_engine == "postgre"
+
+
+- include: monit.yml
+  when: monit_protection is defined and monit_protection == true
+  tags: [postgresql, postgresql-monit]

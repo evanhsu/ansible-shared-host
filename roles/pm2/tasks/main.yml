@@ -1,0 +1,14 @@
+---
+
+- name: Configuring PM2 for Users
+  include: manage-user-apps.yml
+  when: user.pm2_apps is defined
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+#- name: Configuring service
+#  service:
+#    name: "{{ pm2_service_name }}"
+#    state: "{{ pm2_service_state }}"
+#    enabled: "{{ pm2_service_enabled }}"

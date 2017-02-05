@@ -1,0 +1,27 @@
+---
+
+- name: Install PM2 for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} npm install -g pm2"
+
+- name: Get path to PM2 binary for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} which pm2"
+  register: output
+
+- name: Installing PM2 Startup Script for {{ user.name }}
+  become: yes
+  shell: "{{ output.stdout }} startup ubuntu -u {{ user.name }} -hp /home/{{ user.name }}"
+  environment:
+    PATH: "{{ output.stdout | replace('/pm2', '') }}:/home/{{ user.name }}/.npm"
+
+- name: Deleting all PM2 apps for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} pm2 startup"
+  register: command_result
+  failed_when: "'[ERROR]' in command_result.stderr"
+
+- name: Starting PM2 apps for {{ user.name }}
+  environment: "{{ item.env | default({}) }}"
+  shell: "sudo -iu {{ user.name }} pm2 start {{ item.run }} {{ item.args | default() }}"
+  with_items: "{{ user.pm2_apps }}"
+  ignore_errors: yes
+  register: command_result
+  failed_when: "'ERROR' in command_result.stderr"

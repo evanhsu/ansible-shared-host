@@ -1,0 +1,19 @@
+---
+
+- name: install NodeJS {{ user.nodejs.version }} for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} nvm install {{ user.nodejs.version }}"
+  register: output
+  changed_when: "'already installed.' not in output.stderr"
+  args:
+    executable: /bin/bash
+
+- name: create alias directory for each user
+  file: path="/home/{{ user.name }}/alias" state=directory
+  become: true
+  become_user: "{{ user.name }}"
+
+- name: Set default node version to {{ user.nodejs.version }} for {{ user.name }}
+  shell: "sudo -iu {{ user.name }} nvm alias default {{ user.nodejs.version }}"
+  tags: nvm
+  args:
+    executable: /bin/bash

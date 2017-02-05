@@ -1,0 +1,5 @@
+---
+# group_vars/all.yml
+# These variables apply to ALL environments.
+
+

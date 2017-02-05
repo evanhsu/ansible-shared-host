@@ -1,0 +1,51 @@
+---
+- name: ensure SSH key exists at DigitalOcean
+  digital_ocean: >
+    state=present
+    command=ssh
+    name="{{ item.key_name }}"
+    ssh_pub_key="{{ lookup('file', '{{ item.filename }}') }}"
+    api_token="{{ do_token }}"
+  register: ssh_keys
+  with_items:
+    - { key_name: bamboo-root,  filename: "/root/.ssh/id_rsa.pub" }
+    - { key_name: Bamboo,       filename: "/home/bamboo/.ssh/id_rsa.pub" }
+
+- debug: msg="{{ item }}"
+  with_items:
+    - "{{ groups['droplets'] }}"
+
+- name: ensure droplets exist
+  digital_ocean: >
+    state=present
+    command=droplet
+    name="{{ item }}"
+    unique_name=yes
+    size_id="{{ droplet_size_id }}"
+    region_id="{{ droplet_region_id }}"
+    image_id="{{ droplet_image_id }}"
+    backups_enabled="{{ droplet_backups_enabled }}"
+    private_networking="{{ droplet_private_networking }}"
+    ssh_key_ids={{ ssh_keys.results | map(attribute='ssh_key.id') | join(',') }}
+    api_token={{ do_token }}
+    wait=yes
+    wait_timeout=360
+  register: droplets
+  with_items:
+    - "{{ groups['droplets'] }}"
+
+#- debug: msg="{{ droplets }}"
+
+- name: Add new droplet to our dynamic inventory.
+  add_host:
+    name: "{{ item.droplet.ip_address }}"
+    groups: core,http,sql,mail,postgresql,elasticsearch
+  with_items: "{{ droplets.results }}"
+
+- name: Waiting for droplets to finish booting up
+  local_action: wait_for
+    host={{ item.droplet.ip_address }}
+    state=started
+    port=22
+    timeout=60
+  with_items: "{{ droplets.results }}"

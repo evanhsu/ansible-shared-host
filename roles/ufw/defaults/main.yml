@@ -1,0 +1,7 @@
+---
+ufw_policy: deny
+ufw_open_tcp_ports:
+  - 80
+  - 443
+  - 22
+  - 3306

@@ -1,0 +1,75 @@
+---
+# group_vars/local.yml
+# These variables apply to the LOCAL (Vagrant) environment.
+#
+#
+# This is a list of all the user accounts, vhosts, databases, etc that should exist on the server.
+# The user name will also be used to create a home-folder, a vhost, and a database.
+#
+# NOTE: usernames are limited to 32 characters
+
+
+
+# Define the folder structure that will be created inside the DocumentRoot for each vhost
+# Example:
+# vhost_folder_structure:
+#    - public_html/public
+#    - build_logs
+#    - logs
+vhost_folder_structure:
+    - public
+
+vhosts:
+    - listen: "80"
+      server_name: "ansibletest1.com"
+      server_aliases: "www.ansibletest1.com"
+      root: "/home/ansibletest1/ansibletest1.com/public"
+      username: "ansibletest1"
+      nginx_upstreams:
+        - upstream:
+            name: nodejs-ansibletest1
+            host: 127.0.0.1
+            port: 3001
+      database:
+        name: "ansibletest1"
+      redis_port: "6379"    # Assign the first available port beginning with 6379
+      php_fpm:
+        pm_start_servers: 5
+        php_admin_disable_functions: "exec"
+      nodejs:
+        nodejs_version: '4.5.0'
+        nvm_version: v0.31.7
+      env:
+        - APP_DEBUG=false
+        - APP_ENV=production
+        - CACHE_DRIVER=false
+
+    # No database
+    # No php-fpm
+    - listen: "80"
+      server_name: "ansibletest2.com"
+      root: "/home/ansibletest2/ansibletest2.com/public"
+      username: "ansibletest2"
+      nginx_upstreams:
+          - upstream:
+              name: nodejs-ansibletest2
+              host: 127.0.0.1
+              port: 3002
+              keepalive: 64
+          - upstream:
+              name: notifier-ansibletest2
+              host: 127.0.0.1
+              port: 3003
+      redis_port: "6380"
+      nodejs:
+        nodejs_version: '6.5.0'
+        install_pm2: true
+
+    # No nodejs
+    - listen: "80"
+      server_name: "ansibletest3.com"
+      root: "/home/ansibletest3/ansibletest3.com/public"
+      username: "ansibletest3"
+      database:
+        name: "ansibletest3"
+      php_fpm:

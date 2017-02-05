@@ -1,0 +1,110 @@
+---
+# Playbook: sharedhost.yml
+#
+# Example usage:
+#
+#   > ansible-playbook sharedhost -i inventory/production
+#
+# Create or verify existence and provisioning of each
+# production server (defined in inventory/production)
+# using the variables defined in '/group_vars/production.yml'.
+
+- include_vars: do_token.yml
+
+
+- hosts: control
+  roles:
+    # Ensure existence of the Digital Ocean droplets defined in the inventory file
+    - role: do-droplets
+
+# Make sure that all hosts have python 2.7 before executing the main script.
+# Connect to each host using "gather_facts: false" to avoid the python requirement.
+# Check for python (and install it) using the 'raw' module to avoid requiring python (executes a simple SSH command)
+- hosts: core
+  gather_facts: false
+  become: yes   # act as 'root' (same as running 'su')
+  become_method: sudo
+
+  pre_tasks:
+
+    - name: Ensure remote nodes have python-simplejson installed
+      raw: if [ $(dpkg-query -W -f='${Status}' python-simplejson 2>/dev/null | grep -c "ok installed") -eq 0 ]; then apt-get -y install python-simplejson; fi
+
+
+# All hosts have python installed, continue with the provisioning scripts...
+- hosts: core
+  become: yes   # act as 'root'
+  become_method: sudo
+
+  roles:
+
+    # Create a user and group for each vhost in the vhosts.yml file
+    - { role: user-accounts }
+
+    # Create crontab for each user
+    - { role: user-crontabs }
+
+    # Install vim because Evan likes it. Seriously we need a text editor.
+    - role: franklinkim.vim
+
+    # Install htop for server monitoring
+    - role: tersmitten.htop
+
+    # Install NodeJS
+    - role: nvm
+
+    # Install/configure Redis
+    # - role: davidwittman.redis
+
+    # Configure User PM2 Apps
+    - role: pm2
+
+    # Configure firewall using UFW (block all ports, then selectively open the desired ones)
+    - role: ufw
+
+- hosts: http
+  become: yes   # act as 'root'
+  become_method: sudo
+
+  roles:
+
+    # Setup nginx, configure vhosts, create docroot folders in home/{user}/{vhost}
+    - role: geerlingguy.nginx
+
+    # Install/configure PHP
+    - role: geerlingguy.php
+
+
+- hosts: mail
+  become: yes
+  become_method: sudo
+
+  roles:
+
+    # Install PostFix mail relay
+    - { role: petemcw.postfix,
+        postfix_domain: "{{ postfix_settings.postfix_domain }}",
+        postfix_notify_email: "{{ postfix_settings.postfix_notify_email }}",
+        postfix_use_smtp: "{{ postfix_settings.postfix_use_smtp }}",
+        postfix_relayhost: "{{ postfix_settings.postfix_relayhost }}",
+        postfix_relayhost_user: "{{ postfix_settings.postfix_relayhost_user }}",
+        postfix_relayhost_pass: "{{ postfix_settings.postfix_relayhost_pass }}"
+      }
+
+
+- hosts: sql
+  become: yes
+  become_method: sudo
+
+  roles:
+
+    # Install/configure MariaDb with a database for each username in the vhosts.yml file
+    - role: geerlingguy.mysql
+
+- hosts: postgresql
+  become: yes
+  become_method: sudo
+
+  roles:
+    - role: ANXS.postgresql
+

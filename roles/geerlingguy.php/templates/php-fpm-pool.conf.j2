@@ -1,0 +1,69 @@
+[{{ item.server_name }}]
+
+user = {{ user.name }}
+group = {{ user.name }}
+
+; Unix user/group of processes
+listen = /run/php/php7.0-fpm-{{ item.server_name }}.sock
+
+{% if item.php.fpm is defined %}
+
+listen.allowed_clients = {{ item.php.fpm.listen_allowed_clients | default( php_fpm_listen_allowed_clients ) }}
+listen.owner = {{ item.php.fpm.pool_user | default( php_fpm_pool_user ) }}
+listen.group = {{ item.php.fpm.pool_group | default( php_fpm_pool_group ) }}
+php_admin_value[disable_functions] = {{ item.php.fpm.php_admin_disable_functions | default( php_fpm_admin_disable_functions ) }}
+php_admin_flag[allow_url_fopen] = {{ item.php.fpm.php_admin_allow_url_fopen | default( php_fpm_admin_allow_url_fopen ) }}
+php_flag[display_errors] = on
+php_admin_value[error_log] = /home/{{ user.name }}/logs/{{ item.server_name }}-{{ php_fpm_logfile_suffix }}
+php_admin_flag[log_errors] = true
+
+; Choose how the process manager will control the number of child processes.
+pm = dynamic
+pm.max_children = {{ item.php.fpm.pm_max_children | default( php_fpm_pm_max_children )   }}
+pm.start_servers = {{ item.php.fpm.pm_start_servers| default( php_fpm_pm_start_servers )  }}
+pm.min_spare_servers = {{ item.php.fpm.pm_min_spare_servers | default( php_fpm_pm_min_spare_servers ) }}
+pm.max_spare_servers = {{ item.php.fpm.pm_max_spare_servers | default( php_fpm_pm_max_spare_servers ) }}
+pm.max_requests = {{ item.php.fpm.pm_max_requests | default( php_fpm_pm_max_requests ) }}
+
+
+{% else %}
+
+listen.allowed_clients = {{ php_fpm_listen_allowed_clients }}
+listen.owner = {{ php_fpm_pool_user }}
+listen.group = {{ php_fpm_pool_group }}
+php_admin_value[disable_functions] = {{ php_fpm_admin_disable_functions }}
+php_admin_flag[allow_url_fopen] = {{ php_fpm_admin_allow_url_fopen }}
+
+; Choose how the process manager will control the number of child processes.
+pm = dynamic
+pm.max_children = {{ php_fpm_pm_max_children }}
+pm.start_servers = {{ php_fpm_pm_start_servers }}
+pm.min_spare_servers = {{ php_fpm_pm_min_spare_servers }}
+pm.max_spare_servers = {{ php_fpm_pm_max_spare_servers }}
+pm.max_requests = {{ php_fpm_pm_max_requests }}
+
+{% endif %}
+
+; Pass environment variables
+env[HOSTNAME] = $HOSTNAME
+env[PATH] = /usr/local/bin:/usr/bin:/bin
+env[TMP] = /tmp
+env[TMPDIR] = /tmp
+env[TEMP] = /tmp
+
+{% if user.databases is defined %}
+; Database connection for this php-fpm pool
+env[DB_HOST] = localhost
+env[DB_USERNAME] = {{ user.name }}
+{% endif %}
+
+{% if item.env is defined %}
+; Custom environment variables for this vhost
+    {% for env_var in item.env %}
+env[{{ (env_var.split("="))[0] }}] = "{{ env_var.split("=")[1] }}"
+    {% endfor %}
+{% endif %}
+
+; host-specific php ini settings here
+; php_admin_value[open_basedir] = /home/{{ user.name }}/{{ item.server_name }}:/tmp
+chdir = /

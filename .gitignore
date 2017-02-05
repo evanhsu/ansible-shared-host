@@ -1,0 +1,6 @@
+.vagrant
+*.log
+*.retry
+.DS_Store
+
+.idea

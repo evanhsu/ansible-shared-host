@@ -1,0 +1,13 @@
+---
+
+galaxy_name: franklinkim.vim
+github_user: weareinteractive
+github_name: ansible-vim
+badges: |
+  [![Build Status](https://img.shields.io/travis/weareinteractive/ansible-vim.svg)](https://travis-ci.org/weareinteractive/ansible-vim)
+  [![Galaxy](http://img.shields.io/badge/galaxy-franklinkim.vim-blue.svg)](https://galaxy.ansible.com/list#/roles/1386)
+  [![GitHub Tags](https://img.shields.io/github/tag/weareinteractive/ansible-vim.svg)](https://github.com/weareinteractive/ansible-vim)
+  [![GitHub Stars](https://img.shields.io/github/stars/weareinteractive/ansible-vim.svg)](https://github.com/weareinteractive/ansible-vim)
+description: |
+  > * installs vim
+  > * configures vim

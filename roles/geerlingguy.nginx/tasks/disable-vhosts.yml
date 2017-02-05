@@ -1,0 +1,34 @@
+---
+# Disable vhosts for any vhosts that are not defined in the vhosts.yml file (delete the symlink from sites-enabled)
+# Also, delete the default nginx vhost if requested
+
+- name: Remove default nginx vhost config file (if configured).
+  file:
+    path: "{{ nginx_default_vhost_path }}"
+    state: absent
+  when: nginx_remove_default_vhost
+  notify:
+    - reload nginx
+
+- name: Remove default nginx vhost config file (if configured).
+  file:
+    path: "{{ nginx_default_vhost_enabled_path }}"
+    state: absent
+  when: nginx_remove_default_vhost
+  notify:
+    - reload nginx
+
+- name: Read the sites-enabled folder
+  shell: "ls -1 {{ nginx_sites_enabled_path }}"
+  register: enabled_sites
+
+# - name: Remove vhost symlinks from sites-enabled for vhosts that are not in the vhosts.yml file
+#   file:
+#     path: "{{ nginx_sites_enabled_path }}/{{ item }}"
+#     state: absent
+#   with_items: "{{ enabled_sites.stdout_lines }}"
+#   when:
+#     - item not in hostnames # hostnames is defined at the top of the hosting_hox.yml playbook
+#     - item != 'default'
+#   notify:
+#     - reload nginx

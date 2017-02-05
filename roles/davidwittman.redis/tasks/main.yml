@@ -1,0 +1,36 @@
+---
+- include: check_vars.yml
+
+- include: install.yml
+
+- name: Disable Transport Huge Pages
+  shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+  tags:
+    - config
+
+- name: Disable Transport Huge Pages
+  lineinfile: >
+      dest=/etc/rc.local
+      line="echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+      state=present
+      insertbefore="exit 0"
+  tags:
+      - config
+
+- include: server.yml
+  when:
+    - not redis_sentinel
+    - user.redis is defined
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+  tags:
+    - config
+
+- include: sentinel.yml
+  when: redis_sentinel
+  tags:
+    - config
+
+- include: local_facts.yml
+  when: redis_local_facts|bool

@@ -1,0 +1,13 @@
+---
+# For more information about default variables see:
+# http://www.ansibleworks.com/docs/playbooks_variables.html#id26
+#
+# vim_config:
+#   - "set tabstop=2"
+#   - "set shiftwidth=2"
+#   - "syntax enable"
+
+# package name (version)
+vim_package: vim
+# global vim configuration
+vim_config: []

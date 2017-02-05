@@ -1,0 +1,12 @@
+# This is the Inventory for the LOCAL environment.
+# These are the settings that will be used to interact with your local Vagrant machine.
+
+[web]
+vagrant ansible_host=192.168.33.100 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_connection=ssh
+
+[vagrant:children]
+# This section creates a GROUP named 'vagrant' which automatically loads
+# variables from the 'group_vars/vagrant.yml' file.  This group contains all the same
+# servers as the 'web' group, it simply defines a unique name so that the correct variable file can be auto-loaded.
+web
+

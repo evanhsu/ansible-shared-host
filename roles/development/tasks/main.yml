@@ -1,0 +1,15 @@
+---
+
+#- name: Mount user folders
+#  include: mount-user-folders.yml
+#  when: "item.mounts is defined and item.mounts != false"
+#  with_items: "{{ users }}"
+
+- name: Install zip extension
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - zip
+    - unzip
+    - php7.0-zip

@@ -1,0 +1,21 @@
+---
+- set_fact:
+
+- name: Check for {{ item.name }}'s local SSH key file
+  local_action: stat path="ssh-keys/{{ ssh_key }}"
+  become: no
+  with_items: "{{ item.ssh_keys }}"
+  loop_control:
+    loop_var: ssh_key
+  register: result
+
+- name: Copy {{ item.name }}'s local SSH key file to remote
+  authorized_key:
+    user="{{ item.name }}"
+    key="{{ lookup('file', 'ssh-keys/{{ ssh_key.ssh_key }}') }}"
+    state=present
+    manage_dir=yes
+    exclusive=no
+  with_items: "{{ result.results }}"
+  loop_control:
+    loop_var: ssh_key

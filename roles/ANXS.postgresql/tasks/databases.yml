@@ -1,0 +1,80 @@
+# file: postgresql/tasks/databases.yml
+
+- name: PostgreSQL | Ensure PostgreSQL is running
+  service:
+    name: "{{ postgresql_service_name }}"
+    state: started
+
+- name: PostgreSQL | Make sure the PostgreSQL databases are present
+  postgresql_db:
+    name: "{{ db.name }}"
+    owner: "{{ user.name }}"
+    encoding: "{{ db.encoding | default(postgresql_encoding) }}"
+    lc_collate: "{{ db.lc_collate | default(postgresql_locale) }}"
+    lc_ctype: "{{ db.lc_ctype | default(postgresql_ctype) }}"
+    port: "{{postgresql_port}}"
+    template: "template0"
+    state: present
+    login_user: "{{postgresql_admin_user}}"
+  become: yes
+  become_user: "{{postgresql_admin_user}}"
+
+- name: PostgreSQL | Add extensions to the databases
+  shell: "psql {{item.0.db}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS {{ item.1 }};'"
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  with_subelements:
+    - "{{postgresql_database_extensions}}"
+    - extensions
+  register: result
+  changed_when: "'NOTICE' not in result.stderr"
+
+- name: PostgreSQL | Add hstore to the databases with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS hstore;'"
+  register: hstore_ext_result
+  failed_when: hstore_ext_result.rc != 0 and ("already exists, skipping" not in hstore_ext_result.stderr)
+  changed_when: hstore_ext_result.rc == 0 and ("already exists, skipping" not in hstore_ext_result.stderr)
+
+- name: PostgreSQL | Add uuid-ossp to the database with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";'"
+  register: uuid_ext_result
+  failed_when: uuid_ext_result.rc != 0 and ("already exists, skipping" not in uuid_ext_result.stderr)
+  changed_when: uuid_ext_result.rc == 0 and ("already exists, skipping" not in uuid_ext_result.stderr)
+  when: true
+
+- name: PostgreSQL | Add postgis to the databases with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS postgis;'&&psql {{db.name}} -c 'CREATE EXTENSION IF NOT EXISTS postgis_topology;'"
+  when: true
+
+- name: PostgreSQL | add cube to the database with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{ postgresql_admin_user }} -c 'create extension if not exists cube;'"
+  when: true
+
+- name: PostgreSQL | Add plpgsql to the database with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{ postgresql_admin_user }} -c 'CREATE EXTENSION IF NOT EXISTS plpgsql;'"
+  when: true
+
+- name: PostgreSQL | add earthdistance to the database with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{ postgresql_admin_user }} -c 'create extension if not exists earthdistance;'"
+  when: true
+
+- name: PostgreSQL | Add citext to the database with the requirement
+  become: yes
+  become_user: "{{postgresql_service_user}}"
+  shell: "{{ postgresql_bin_directory}}/psql {{db.name}} --username {{postgresql_admin_user}} -c 'CREATE EXTENSION IF NOT EXISTS citext;'"
+  register: citext_ext_result
+  failed_when: citext_ext_result.rc != 0 and ("already exists, skipping" not in citext_ext_result.stderr)
+  changed_when: citext_ext_result.rc == 0 and ("already exists, skipping" not in citext_ext_result.stderr)
+  when: true

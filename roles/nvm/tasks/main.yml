@@ -1,0 +1,33 @@
+---
+
+- name: Install dependencies
+  apt: pkg={{ package }} update_cache=yes cache_valid_time=3600
+  with_items:
+    - acl
+    - git
+    - curl
+    - build-essential
+    - libssl-dev
+  loop_control:
+    loop_var: package
+  tags: nvm
+
+- include_vars: "user.yml"
+
+- include: "user/install.yml"
+  when:  "user.nodejs is defined"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- include: "user/install_versions.yml"
+  when:  "user.nodejs is defined"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user
+
+- include: "user/install_packages.yml"
+  when:  "user.nodejs is defined and user.nodejs.packages is defined"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user

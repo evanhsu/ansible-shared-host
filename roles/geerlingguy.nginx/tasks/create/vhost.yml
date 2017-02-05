@@ -1,0 +1,13 @@
+---
+
+- name: Add managed vhost config file
+  template:
+    src: vhosts.j2
+    dest: "{{ nginx_vhost_path }}/{{ nginx_vhosts_filename }}"
+    mode: 0644
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    force: yes
+  notify:
+    - reload nginx
+    - restart php-fpm

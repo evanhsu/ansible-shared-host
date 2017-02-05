@@ -1,0 +1,21 @@
+- name: Create php-fpm pool for {{ item.server_name }}
+  template:
+    src: php-fpm-pool.conf.j2
+    dest: "{{ php_fpm_pool_conf_path | dirname }}/{{ item.server_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+  when: "item.php is defined and php_enable_php_fpm"
+  with_items: "{{ user.vhosts }}"
+  notify: restart php-fpm
+
+- name: Touch the php-fpm logfiles for {{ item.server_name }}
+  file: >
+    path="/home/{{ user.name }}/logs/{{ item.server_name }}-{{ php_fpm_logfile_suffix }}"
+    state=touch
+    owner="{{ user.name }}"
+    group="{{ nginx_user }}"
+    mode=0777
+  when: "item.php is defined and php_enable_php_fpm"
+  with_items: "{{ user.vhosts }}"

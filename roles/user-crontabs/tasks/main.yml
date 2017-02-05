@@ -1,0 +1,8 @@
+---
+
+- name: Set crontab for each user
+  include: create-crontab-for-user.yml
+  when: "user.cron is defined"
+  with_items: "{{ users }}"
+  loop_control:
+    loop_var: user

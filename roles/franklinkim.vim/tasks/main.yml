@@ -1,0 +1,23 @@
+---
+
+- include: install.yml
+  tags:
+    - development
+    - vim
+    - install
+    - vim-install
+
+- include: config.yml
+  tags:
+    - development
+    - vim
+    - config
+    - vim-config
+
+- include: config_redhat.yml
+  when: ansible_os_family == 'RedHat'
+  tags:
+    - development
+    - vim
+    - config
+    - vim-config

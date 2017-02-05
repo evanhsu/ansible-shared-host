@@ -1,0 +1,75 @@
+server {
+
+    listen {{ vhost.listen | default('80') }};
+
+    {% if vhost.server_name is defined %}
+    server_name {{ vhost.server_name }} {{ vhost.server_aliases | default('') | join(",") }};
+    {% endif %}
+
+    {% if vhost.ssl is defined %}
+    ssl_certificate     /etc/nginx/ssl/{{ vhost.ssl.ssl_cert_filename }};
+    ssl_certificate_key /etc/nginx/ssl/{{ vhost.ssl.ssl_key_filename }};
+
+    ssl_protocols             TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers               EECDH+CHACHA20:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256:EECDH+3DES:RSA+3DES:!MD5;
+    ssl_session_timeout       5m;
+    ssl_session_cache         shared:SSL:10m;
+    ssl_dhparam               /etc/nginx/ssl/dhparam.pem;
+    {% endif %}
+
+    {% if vhost.root is defined %}
+    root {{ vhost.root }};
+    {% endif %}
+
+    index {{ vhost.index | default('index.php index.html index.htm') }};
+
+    location / {
+         try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    {% if http is defined and http.auth_username is defined and vhost.bypass_protect is not defined %}
+    include global/staging-protect.conf;
+    {% endif %}
+
+    {% if vhost.wordpress is defined and vhost.wordpress == true %}
+    include global/wordpress.conf;
+    {% endif %}
+
+    {% if vhost.error_page is defined %}
+    error_page {{ vhost.error_page }};
+    {% endif %}
+
+    access_log {{ nginx_access_log_path }} {{ nginx_access_log_opts }};
+    error_log {{ nginx_error_log_path }} {{ nginx_error_log_level }};
+
+    {% if vhost.return is defined %}
+    return {{ vhost.return }};
+    {% endif %}
+
+    {% if vhost.extra_parameters is defined %}
+    {{ vhost.extra_parameters }}
+    {% endif %}
+
+    {% if 'staging' in group_names %}
+    location /robots.txt {
+        alias /var/www/html/robots.txt;
+    }
+    {% endif %}
+
+    {% if vhost.php is defined %}
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.0-fpm-{{ vhost.server_name }}.sock;
+    }
+    {% endif %}
+
+    location ~ ^/(assets/|images/|img/|javascript/|js/|css/|stylesheets/|flash/|static/|robots.txt|humans.txt|favicon.ico) {
+        access_log off;
+        expires max;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
