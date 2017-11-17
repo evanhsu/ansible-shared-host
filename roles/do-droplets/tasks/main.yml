@@ -8,8 +8,7 @@
     api_token="{{ do_token }}"
   register: ssh_keys
   with_items:
-    - { key_name: bamboo-root,  filename: "/root/.ssh/id_rsa.pub" }
-    - { key_name: Bamboo,       filename: "/home/bamboo/.ssh/id_rsa.pub" }
+    - { key_name: ansible-control-root, filename: "~/.ssh/id_rsa.pub" }
 
 - debug: msg="{{ item }}"
   with_items:

@@ -14,10 +14,10 @@ GROUPS_LIST:
 
   - &developers
     name: "developers"
-    id: 1000
+    id: 1001
   - &clients
     name: "clients"
-    id: 1001
+    id: 1002
 
 
 
@@ -25,21 +25,30 @@ DEVELOPERS_LIST:
 
   - &evan
     name: "evan"
-    id: 2002
+    id: 2001
     groups:
       - "developers"
       - "sudo"
     ssh_keys:
       - "evan.pub"
       - "evan_at_eva.pub"
+      - "evan_at_home.pub"
 
+
+postfix_settings:
+  postfix_domain: 'localhost'
+  postfix_notify_email: 'support@localhost.com'
+  postfix_use_smtp: true
+  # postfix_relayhost: '[mailtrap.io]'
+  # postfix_relayhost_user: 'abcdefg...'
+  # postfix_relayhost_pass: '1234567...'
 
 
 CLIENTS_LIST:
 
-  - &siskiyourappellers
-    name: "siskiyourappellers"
-    id: 3000
+  - &firecrew
+    name: "firecrew"
+    id: 3001
     groups:
       - "clients"
 
@@ -50,17 +59,20 @@ user_groups:
 users:
   - <<: *evan
 
-  - <<: *siskiyourappellers
+  - <<: *firecrew
 
     databases:
-      - name: "siskiyourappellers"
+      - name: "firecrew"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
 
     vhosts:
       - listen: "80"
-        server_name: "siskiyourappellers.com"
+        server_name: "firecrew.us.dev"
         server_aliases:
-          - "www.siskiyourappellers.com"
-          - "siskiyou.rappellers.us"
-          - "www.siskiyou.rappellers.us"
+          - "www.firecrew.us.dev"
         php: true
-        root: "/home/siskiyourappellers/siskiyourappellers.com/public"
+        root: "/home/firecrew/sites/firecrew.us.dev/public"
+
+    cron:
+      - "* * * * * php /home/firecrew/sites/firecrew.us.dev/artisan schedule:run >> /dev/null 2>&1"

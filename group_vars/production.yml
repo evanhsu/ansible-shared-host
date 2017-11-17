@@ -14,10 +14,10 @@ GROUPS_LIST:
 
   - &developers
     name: "developers"
-    id: 1000
+    id: 1001
   - &clients
     name: "clients"
-    id: 1001
+    id: 1002
 
 
 
@@ -25,21 +25,50 @@ DEVELOPERS_LIST:
 
   - &evan
     name: "evan"
-    id: 2002
+    id: 2001
     groups:
       - "developers"
       - "sudo"
     ssh_keys:
       - "evan.pub"
       - "evan_at_eva.pub"
+      - "evan_at_home.pub"
+      - "evan_at_lonster.pub"
 
+http:
+
+postfix_settings:
+  postfix_domain: 'smirksoftware.com'
+  postfix_notify_email: 'support@smirksoftware.com'
+  postfix_use_smtp: true
+  postfix_relayhost: '[smirksoftware.com]'
+  postfix_relayhost_user: false
+  postfix_relayhost_pass: false
 
 
 CLIENTS_LIST:
 
-  - &siskiyourappellers
-    name: "siskiyourappellers"
-    id: 3000
+  - &smirksoftware
+    name: "smirksoftware"
+    id: 3001
+    groups:
+      - "clients"
+
+  - &firecrew
+    name: "firecrew"
+    id: 3002
+    groups:
+      - "clients"
+
+  - &balihooapi
+    name: "balihooapi"
+    id: 3003
+    groups:
+      - "clients"
+
+  - &natrap
+    name: "natrap"
+    id: 3004
     groups:
       - "clients"
 
@@ -50,17 +79,88 @@ user_groups:
 users:
   - <<: *evan
 
-  - <<: *siskiyourappellers
+  - <<: *smirksoftware
 
     databases:
-      - name: "siskiyourappellers"
+      - name: "smirksoftware"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 7.5.0
+      packages:
+        - name: yarn
 
     vhosts:
       - listen: "80"
-        server_name: "siskiyourappellers.com"
+        server_name: "smirksoftware.com"
         server_aliases:
-          - "www.siskiyourappellers.com"
-          - "siskiyou.rappellers.us"
-          - "www.siskiyou.rappellers.us"
+          - "www.smirksoftware.com"
         php: true
-        root: "/home/siskiyourappellers/siskiyourappellers.com/public"
+        root: "/home/smirksoftware/sites/smirksoftware.com/public"
+
+  - <<: *firecrew
+
+    databases:
+      - name: "firecrew"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+      - name: "siskiyou_general"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 7.5.0
+      packages:
+        - name: yarn
+
+    vhosts:
+      - listen: "80"
+        server_name: "firecrew.smirksoftware.com"
+        server_aliases:
+          - "www.firecrew.smirksoftware.com"
+        php: true
+        root: "/home/firecrew/sites/firecrew.smirksoftware.com/public"
+
+  - <<: *balihooapi
+
+    databases:
+      - name: "balihooapi"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    vhosts:
+      - listen: "80"
+        server_name: "balihooapi.smirksoftware.com"
+        server_aliases:
+          - "www.balihooapi.smirksoftware.com"
+        php: true
+        root: "/home/balihooapi/sites/balihooapi.smirksoftware.com/public"
+
+  - <<: *natrap
+
+    databases:
+      - name: "natrap"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 7.5.0
+      packages:
+        - name: yarn
+
+    vhosts:
+      - listen: "80"
+        server_name: "natrap.com"
+        server_aliases:
+          - "www.natrap.com"
+        php: true
+        root: "/home/natrap/sites/natrap.com/public"
+
+      - listen: "80"
+        server_name: "staffing.natrap.com"
+        server_aliases:
+          - "www.staffing.natrap.com"
+        php: true
+        root: "/home/natrap/sites/staffing.natrap.com/public"

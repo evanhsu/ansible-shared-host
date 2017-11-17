@@ -32,7 +32,7 @@
     pkg={{ item }}
     update_cache=yes
     state=latest
-  with_items: postfix_packages
+  with_items: "{{ postfix_packages }}"
   when: ansible_os_family == 'Debian'
   tags:
     - common
@@ -45,7 +45,7 @@
     mode=0600 owner=root group=root
   notify:
     - postmap sasl
-  when: postfix_use_smtp and postfix_relayhost_user and postfix_relayhost_pass
+  when: postfix_use_smtp is defined and postfix_relayhost_user is defined and postfix_relayhost_pass is defined
   tags:
     - common
     - postfix

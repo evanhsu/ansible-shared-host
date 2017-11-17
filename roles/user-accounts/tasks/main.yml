@@ -23,22 +23,6 @@
     shell: /bin/bash
   with_items: "{{ users }}"
 
-- name: Create ftp-user accounts
-  user:
-    state: present
-    name: "{{ item.name }}"
-    createhome: false
-    home: "{{ item.root }}"
-    uid: "{{ item.id }}"
-    group: "ftpusers"
-    groups: "{{ item.groups|join(',') }}"
-    password: "{{ item.password | default(omit) }}"
-    update_password: on_create
-    shell: /sbin/nologin
-  when:
-    - item.name is defined
-  with_items: "{{ FTPUSERS_LIST }}"
-
 - name: chown user home folders to the user
   file:
     path: "/home/{{ item.name }}"

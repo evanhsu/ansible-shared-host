@@ -9,10 +9,9 @@
 # production server (defined in inventory/production)
 # using the variables defined in '/group_vars/production.yml'.
 
-- include_vars: do_token.yml
-
-
 - hosts: control
+  vars_files: 
+    - vars/do_token.yml
   roles:
     # Ensure existence of the Digital Ocean droplets defined in the inventory file
     - role: do-droplets
@@ -74,6 +73,8 @@
     # Install/configure PHP
     - role: geerlingguy.php
 
+    - role: geerlingguy.composer
+
 
 - hosts: mail
   become: yes
@@ -101,10 +102,10 @@
     # Install/configure MariaDb with a database for each username in the vhosts.yml file
     - role: geerlingguy.mysql
 
-- hosts: postgresql
-  become: yes
-  become_method: sudo
+# - hosts: postgresql
+#   become: yes
+#   become_method: sudo
 
-  roles:
-    - role: ANXS.postgresql
+#   roles:
+#     - role: ANXS.postgresql
 
