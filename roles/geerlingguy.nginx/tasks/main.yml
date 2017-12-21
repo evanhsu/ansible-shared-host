@@ -92,7 +92,7 @@
     group: "{{ root_group }}"
     mode: 0644
     force: yes
-  when: "http.auth_password is defined"
+  when: "http is defined and http.auth_password is defined"
   notify:
     - reload nginx
 
@@ -121,4 +121,4 @@
     owner: "{{ nginx_user }}"
     group: "{{ nginx_user }}"
     mode: 0640
-  when: "http.auth_password is defined"
+  when: "http is defined and http.auth_password is defined"
