@@ -1,6 +1,6 @@
 ---
 # group_vars/production.yml
-# These variables apply to the PRODUCTION environment.
+# These variables apply to the VAGRANT environment.
 #
 #
 # This is a list of all the user accounts, vhosts, databases, etc that should exist on the server.
@@ -39,9 +39,9 @@ postfix_settings:
   postfix_domain: 'localhost'
   postfix_notify_email: 'support@localhost.com'
   postfix_use_smtp: true
-  postfix_relayhost: '[smtp.mailtrap.io]:2525'
-  postfix_relayhost_user: ''
-  postfix_relayhost_pass: ''
+#  postfix_relayhost: '[smtp.mailtrap.io]:2525'
+#  postfix_relayhost_user: ''
+#  postfix_relayhost_pass: ''
 
 
 CLIENTS_LIST:
@@ -70,7 +70,7 @@ users:
       - listen: "80"
         server_name: "firecrew.us.local"
         server_aliases:
-          - "www.firecrew.us.dev"
+          - "www.firecrew.us.local"
         php: true
         root: "/home/firecrew/sites/firecrew.us.local/public"
 
