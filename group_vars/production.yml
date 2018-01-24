@@ -60,12 +60,6 @@ CLIENTS_LIST:
     groups:
       - "clients"
 
-  - &balihooapi
-    name: "balihooapi"
-    id: 3003
-    groups:
-      - "clients"
-
   - &natrap
     name: "natrap"
     id: 3004
@@ -117,26 +111,11 @@ users:
 
     vhosts:
       - listen: "80"
-        server_name: "firecrew.smirksoftware.com"
+        server_name: "firecrew.us"
         server_aliases:
-          - "www.firecrew.smirksoftware.com"
+          - "firecrew.smirksoftware.com"
         php: true
-        root: "/home/firecrew/sites/firecrew.smirksoftware.com/public"
-
-  - <<: *balihooapi
-
-    databases:
-      - name: "balihooapi"
-        collation: "utf8mb4_unicode_ci"
-        encoding: "utf8mb4"
-
-    vhosts:
-      - listen: "80"
-        server_name: "balihooapi.smirksoftware.com"
-        server_aliases:
-          - "www.balihooapi.smirksoftware.com"
-        php: true
-        root: "/home/balihooapi/sites/balihooapi.smirksoftware.com/public"
+        root: "/home/firecrew/sites/firecrew.us/public"
 
   - <<: *natrap
 

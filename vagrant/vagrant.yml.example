@@ -39,9 +39,9 @@ postfix_settings:
   postfix_domain: 'localhost'
   postfix_notify_email: 'support@localhost.com'
   postfix_use_smtp: true
-  # postfix_relayhost: '[mailtrap.io]'
-  # postfix_relayhost_user: 'abcdefg...'
-  # postfix_relayhost_pass: '1234567...'
+  postfix_relayhost: '[smtp.mailtrap.io]:2525'
+  postfix_relayhost_user: ''
+  postfix_relayhost_pass: ''
 
 
 CLIENTS_LIST:
@@ -68,11 +68,11 @@ users:
 
     vhosts:
       - listen: "80"
-        server_name: "firecrew.us.dev"
+        server_name: "firecrew.us.local"
         server_aliases:
           - "www.firecrew.us.dev"
         php: true
-        root: "/home/firecrew/sites/firecrew.us.dev/public"
+        root: "/home/firecrew/sites/firecrew.us.local/public"
 
     cron:
-      - "* * * * * php /home/firecrew/sites/firecrew.us.dev/artisan schedule:run >> /dev/null 2>&1"
+      - "* * * * * php /home/firecrew/sites/firecrew.us.local/artisan schedule:run >> /dev/null 2>&1"

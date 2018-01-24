@@ -14,7 +14,7 @@ vagrant ansible_host=192.168.33.10 ansible_ssh_user=vagrant ansible_ssh_pass=vag
 #vagrant ansible_host=192.168.33.10 ansible_ssh_user=vagrant #ansible_ssh_pass=vagrant ansible_connection=ssh
 
 [mail]
-#vagrant ansible_host=192.168.33.10 ansible_ssh_user=vagrant #ansible_ssh_pass=vagrant ansible_connection=ssh
+vagrant ansible_host=192.168.33.10 ansible_ssh_user=vagrant ansible_ssh_pass=vagrant ansible_connection=ssh
 
 [vagrant:children]
 # This section creates a GROUP named 'vagrant' which automatically loads
@@ -24,4 +24,4 @@ core
 http
 sql
 #postgresql
-#mail
+mail
