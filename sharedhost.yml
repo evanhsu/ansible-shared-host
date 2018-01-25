@@ -84,12 +84,12 @@
 
     # Install PostFix mail relay
     - { role: petemcw.postfix,
-        postfix_domain: "{{ postfix_settings.postfix_domain }}",
-        postfix_notify_email: "{{ postfix_settings.postfix_notify_email }}",
-        postfix_use_smtp: "{{ postfix_settings.postfix_use_smtp }}",
-        postfix_relayhost: "{{ postfix_settings.postfix_relayhost }}",
-        postfix_relayhost_user: "{{ postfix_settings.postfix_relayhost_user }}",
-        postfix_relayhost_pass: "{{ postfix_settings.postfix_relayhost_pass }}"
+        postfix_domain: "{{ postfix_settings.postfix_domain | default('localhost') }}",
+        postfix_notify_email: "{{ postfix_settings.postfix_notify_email | default('support@localhost') }}",
+        postfix_use_smtp: "{{ postfix_settings.postfix_use_smtp | default(false) }}",
+        postfix_relayhost: "{{ postfix_settings.postfix_relayhost | default(omit) }}",
+        postfix_relayhost_user: "{{ postfix_settings.postfix_relayhost_user | default(omit) }}",
+        postfix_relayhost_pass: "{{ postfix_settings.postfix_relayhost_pass | default(omit) }}"
       }
 
 
