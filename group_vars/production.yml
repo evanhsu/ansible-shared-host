@@ -35,6 +35,15 @@ DEVELOPERS_LIST:
       - "evan_at_home.pub"
       - "evan_at_lonster.pub"
 
+  - &travisci
+    name: "travisci"
+    id: 2002
+    groups:
+      - "developers"
+      - "sudo"
+    ssh_keys:
+      - "deploy_rsa.pub"
+
 http:
 
 postfix_settings:
@@ -72,6 +81,7 @@ user_groups:
 
 users:
   - <<: *evan
+  - <<: *travisci
 
   - <<: *smirksoftware
 
