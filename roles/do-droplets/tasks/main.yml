@@ -46,5 +46,9 @@
     host={{ item.droplet.ip_address }}
     state=started
     port=22
-    timeout=60
+    timeout=90
   with_items: "{{ droplets.results }}"
+
+- name: Pausing for 5 seconds while droplets initialize
+  pause:
+   seconds: 5
