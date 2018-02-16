@@ -48,11 +48,18 @@ http:
 
 postfix_settings:
   postfix_domain: 'smirksoftware.com'
-  postfix_notify_email: 'support@smirksoftware.com'
+  postfix_notify_email: 'evanhsu@gmail.com'
   postfix_use_smtp: true
-  postfix_relayhost: '[smirksoftware.com]'
-  postfix_relayhost_user: false
-  postfix_relayhost_pass: false
+  postfix_relayhost: 'smtp.mailgun.org'
+  postfix_relayhost_user: 'postmaster@mail.smirksoftware.com'
+  postfix_relayhost_pass: !vault |
+                          $ANSIBLE_VAULT;1.1;AES256
+                          61343562393933646531663235356562303762653566343361326635666632643037326361633037
+                          3431646162376565653737633338613637303463353031330a643538653136623638383363393733
+                          38636561353962643266396266343764333061336165373062383833613966323334646465303336
+                          3134396661326135390a333562613034363036346362666439306238376233623833366466363635
+                          38643335353635343136326162373363613230363132333838353132643831623763636662633230
+                          6464323564376630326232613331666265366139613036383366
 
 
 CLIENTS_LIST:
@@ -103,6 +110,7 @@ users:
         php: true
         root: "/home/smirksoftware/sites/smirksoftware.com/public"
 
+
   - <<: *firecrew
 
     databases:
@@ -120,12 +128,16 @@ users:
         - name: yarn
 
     vhosts:
-      - listen: "80"
+      - listen: "443 ssl default"
+        ssl: true
+        redirect_from_http: true
         server_name: "firecrew.us"
         server_aliases:
           - "firecrew.smirksoftware.com"
         php: true
         root: "/home/firecrew/sites/firecrew.us/public"
+
+    cron: "* * * * * php /home/firecrew/sites/firecrew.us/artisan schedule:run >> /dev/null 2>&1"
 
   - <<: *natrap
 
