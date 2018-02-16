@@ -1,0 +1,19 @@
+server_tokens off;
+
+server {
+    if ($host = {{ vhost.server_name }}) {
+        return 301 https://$host$request_uri;
+    }
+
+    listen 80;
+    server_name {{ vhost.server_name }} {{ vhost.server_aliases | default('') | join(",") }};
+
+    location /.well-known/acme-challenge {
+        root /var/www/letsencrypt;
+        try_files $uri $uri/ =404;
+    }
+
+    location / {
+        rewrite ^ https://{{ vhost.server_name }}$request_uri? permanent;
+    }
+}
