@@ -39,6 +39,7 @@
   add_host:
     name: "{{ item.droplet.ip_address }}"
     groups: core,http,sql,mail,postgresql,elasticsearch
+  no_log: true
   with_items: "{{ droplets.results }}"
 
 - name: Waiting for droplets to finish booting up
@@ -47,6 +48,7 @@
     state=started
     port=22
     timeout=90
+  no_log: true
   with_items: "{{ droplets.results }}"
 
 - name: Pausing for 5 seconds while droplets initialize

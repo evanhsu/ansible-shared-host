@@ -21,6 +21,7 @@
     password: "{{ item.password | default(omit) }}"
     update_password: on_create
     shell: /bin/bash
+  no_log: true
   with_items: "{{ users }}"
 
 - name: chown user home folders to the user
@@ -30,6 +31,7 @@
     recurse: yes
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
+  no_log: true
   with_items: "{{ users }}"
   when: "'clients' in item.groups"
 
@@ -49,5 +51,6 @@
 
 - name: Authorize SSH keys for dev-user if provided
   include: copy-ssh-key.yml
+  no_log: true
   when: item.ssh_keys is defined
   with_items: "{{ users }}"

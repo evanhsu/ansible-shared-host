@@ -13,7 +13,7 @@
     line: "{{ item }}"
     state: present
     create: yes
-  when: "{{ item is defined }}"
+  when: item is defined
   with_items: "{{ user.cron }}"
 
 - name: Create crontab for {{ user.name }}
