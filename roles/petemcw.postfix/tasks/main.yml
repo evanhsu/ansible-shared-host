@@ -76,6 +76,25 @@
     - common
     - postfix
 
+- name: Add smtp generic maps (rewrite SENDER addresses)
+  template: >
+    src=generic.j2
+    dest=/etc/postfix/generic
+    mode=0644 owner=root group=root
+  when: postfix_notify_email is defined
+  tags:
+    - common
+    - postfix
+
+- name: Generate db from map file
+  command: postmap /etc/postfix/generic
+  when: postfix_notify_email is defined
+  notify:
+    - restart postfix
+  tags:
+    - common
+    - postfix
+
 - name: Start Postfix on server boot
   service: >
     name={{ postfix_service }}

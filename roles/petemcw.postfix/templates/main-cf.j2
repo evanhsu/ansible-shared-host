@@ -27,13 +27,16 @@ smtp_use_tls = yes
 
 {% endif %}
 # General
-myhostname = {{ postfix_settings.postfix_domain}}
+myhostname = {{ postfix_domain }}
+mydomain = {{ postfix_domain }}
 myorigin = $mydomain
 mydestination =
 mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+#alias_maps = hash:/etc/aliases
+#alias_database = hash:/etc/aliases
 mailbox_size_limit = 0
 recipient_delimiter = +
 inet_interfaces = loopback-only
 relayhost = {% if postfix_relayhost is defined %}{{ postfix_relayhost }}{% else %}$mydomain{% endif %}
+
+smtp_generic_maps = hash:/etc/postfix/generic
