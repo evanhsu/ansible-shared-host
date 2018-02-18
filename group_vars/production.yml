@@ -163,5 +163,5 @@ users:
         server_name: "staffing.natrap.com"
         server_aliases:
           - "www.staffing.natrap.com"
-        php: true
-        root: "/home/natrap/sites/staffing.natrap.com/public"
+        extra_parameters: >
+          return 301 https://firecrew.us$request_uri;
