@@ -82,6 +82,12 @@ CLIENTS_LIST:
     groups:
       - "clients"
 
+  - &stopalerts
+    name: "stopalerts"
+    id: 3005
+    groups:
+      - "clients"
+
 user_groups:
   - <<: *developers
   - <<: *clients
@@ -165,3 +171,27 @@ users:
           - "www.staffing.natrap.com"
         extra_parameters: >
           return 301 https://firecrew.us$request_uri;
+
+  - <<: *stopalerts
+
+    databases:
+      - name: "stopalerts"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 8.2.0
+      packages:
+        - name: yarn
+
+    vhosts:
+      - listen: "443 ssl"
+        ssl: true
+        redirect_from_http: true
+        server_name: "trailingstopalerts.com"
+        server_aliases:
+          - "www.trailingstopalerts.com"
+        php: true
+        root: "/home/stopalerts/sites/trailingstopalerts.com/public"
+
+    cron: "* * * * * php /home/stopalerts/sites/trailingstopalerts.com/artisan schedule:run >> /dev/null 2>&1"
