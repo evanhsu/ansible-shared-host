@@ -1,5 +1,3 @@
-server_tokens off;
-
 server {
     if ($host = {{ vhost.server_name }}) {
         return 301 https://$host$request_uri;
