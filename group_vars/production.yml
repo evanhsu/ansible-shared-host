@@ -88,6 +88,12 @@ CLIENTS_LIST:
     groups:
       - "clients"
 
+  - &wildrivers
+    name: "wildrivers"
+    id: 3006
+    groups:
+      - "clients"
+
 user_groups:
   - <<: *developers
   - <<: *clients
@@ -195,3 +201,24 @@ users:
         root: "/home/stopalerts/sites/trailingstopalerts.com/public"
 
     cron: "* * * * * php /home/stopalerts/sites/trailingstopalerts.com/artisan schedule:run >> /dev/null 2>&1"
+
+  - <<: *wildrivers
+
+    databases:
+      - name: "wildrivers"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 7.5.0
+      packages:
+        - name: yarn
+
+    vhosts:
+      - listen: "443 ssl"
+        ssl: true
+        redirect_from_http: true
+        server_name: "wildrivers.firecrew.us"
+        php: true
+        root: "/home/wildrivers/sites/wildrivers.firecrew.us"
+
