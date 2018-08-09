@@ -12,4 +12,4 @@
   with_items:
     - zip
     - unzip
-    - php7.0-zip
+    - "php{{ php_version }}-zip"

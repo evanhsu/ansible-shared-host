@@ -61,6 +61,14 @@
     # Configure firewall using UFW (block all ports, then selectively open the desired ones)
     - role: ufw
 
+  tasks:
+
+    - name: Install libpng-dev
+      apt:
+        name: libpng-dev
+        state: present
+        update_cache: yes
+
 - hosts: http
   become: yes   # act as 'root'
   become_method: sudo
@@ -71,6 +79,7 @@
     - role: geerlingguy.nginx
 
     # Install/configure PHP
+    - role: geerlingguy.php-versions
     - role: geerlingguy.php
 
     - role: geerlingguy.composer

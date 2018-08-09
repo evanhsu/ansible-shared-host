@@ -8,6 +8,6 @@
 
 - name: restart php-fpm
   service:
-    name: "{{ php_fpm_daemon }}"
+    name: "{{ __php_fpm_daemon }}"
     state: restarted
   when: php_enable_php_fpm
