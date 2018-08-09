@@ -167,7 +167,9 @@ _(Commands provided are specific to Ubuntu)_
         - name: "client_database_2"
         
       vhosts:
-        - listen: "80"
+        - listen: "443 ssl"
+          ssl: true
+          redirect_from_http: true       # Redirect traffic from http://ansible-test.com to https://ansible-test.com
           server_name: "ansible-test.com"                         # REQUIRED
           server_aliases: 
               - "www.ansible-test.com www2.ansible-test.com"
@@ -180,14 +182,14 @@ _(Commands provided are specific to Ubuntu)_
               location ~ ^/(assets/|images/|img/|favicon.ico) {
                 access_log off;
                 expires max;
-          }
+              }
+          
+        - listen: "80"
+          server_name: "olddomain.com"
+          extra_parameters: >
+            return 301 https://newdomain.com$request_uri;
               
           redis_port: "6379"
-            
-          # Install SSL certificates for this site - these files must exist in the `/ssl-certificates` folder of this repo.
-          ssl:
-              ssl_cert_filename: sunvalleymag.com.crt
-              ssl_key_filename: sunvalleymag.com.key
             
           # Add cron jobs to this user's crontab by adding them each on their own line
           cron:

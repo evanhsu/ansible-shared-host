@@ -2,6 +2,7 @@
 
 - set_fact:
     nginx_vhosts_filename: "{{ vhost.server_name }}_{{ vhost.listen | default('80') | replace(' ','_') }}"
+    nginx_vhost_redirect_filename: "{{ vhost.server_name }}_80"
     nginx_error_log_path: "/home/{{ user.name }}/logs/{{ vhost.server_name }}-{{ nginx_error_log_suffix }}"
     nginx_access_log_path: "/home/{{ user.name }}/logs/{{ vhost.server_name }}-{{ nginx_access_log_suffix }}"
 
@@ -16,21 +17,52 @@
   notify:
     - reload nginx
 
+- name: Add managed vhost config file to redirect from HTTP to HTTPS
+  template:
+    src: vhost-redirect-from-http.j2
+    dest: "{{ nginx_vhost_path }}/{{ nginx_vhost_redirect_filename }}"
+    mode: 0644
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    force: yes
+  when:
+    - "vhost.redirect_from_http is defined"
+    - "vhost.redirect_from_http == true"
+  notify:
+    - reload nginx
+
 - block:
-  - name: ensure nginx ssl certificate and key are created
-    copy:
-      src: ssl-certificates/{{ item }}
-      dest: /etc/nginx/ssl/{{ item }}
-      mode: 0600
-      owner: "{{ nginx_user }}"
-      group: "{{ nginx_user }}"
-      force: yes
-    with_items:
-      - "{{ vhost.ssl.ssl_cert_filename }}"
-      - "{{ vhost.ssl.ssl_key_filename }}"
-    notify:
-      - reload nginx
-  when: "vhost.ssl is defined"
+#  - name: ensure nginx ssl certificate and key are created
+#    copy:
+#      src: ssl-certificates/{{ item }}
+#      dest: /etc/nginx/ssl/{{ item }}
+#      mode: 0600
+#      owner: "{{ nginx_user }}"
+#      group: "{{ nginx_user }}"
+#      force: yes
+#    with_items:
+#      - "{{ vhost.ssl.ssl_cert_filename }}"
+#      - "{{ vhost.ssl.ssl_key_filename }}"
+#    notify:
+#      - reload nginx
+#  when: "vhost.ssl is defined"
+
+  - name: Check for existing SSL certificate for {{ vhost.server_name }}
+    stat:
+      path: /etc/letsencrypt/live/{{ vhost.server_name }}/fullchain.pem
+    register: stat_ssl
+    when:
+      - vhost.ssl is defined
+      - vhost.ssl == true
+
+  - name: Request new SSL certificate for {{ vhost.server_name }} using certbot
+    debug:
+      msg: "The secure domain {{ vhost.server_name }} is missing its SSL certificates!  Run certbot: letsencrypt certonly -n --webroot -w /var/www/letsencrypt -m YOUR_EMAIL_ADDRESS --agree-tos -d {{ vhost.server_name }}"
+    when:
+      - vhost.ssl is defined
+      - vhost.ssl == true
+      - stat_ssl.stat.exists == false
+
 
 - name: Touch the nginx logfiles for a vhost
   file:
@@ -54,6 +86,20 @@
     state: link
     owner: "{{ nginx_user }}"
     group: "{{ nginx_user }}"
+  notify:
+    - reload nginx
+    - restart php-fpm
+
+- name: Create symlink in sites-enabled for HTTP redirect
+  file:
+    src: "{{ nginx_vhost_path }}/{{ nginx_vhost_redirect_filename }}"
+    dest: "{{ nginx_sites_enabled_path }}/{{ nginx_vhost_redirect_filename }}"
+    state: link
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+  when:
+      - "vhost.redirect_from_http is defined"
+      - "vhost.redirect_from_http == true"
   notify:
     - reload nginx
     - restart php-fpm
