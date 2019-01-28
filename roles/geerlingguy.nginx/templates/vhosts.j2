@@ -70,7 +70,7 @@ server {
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php7.0-fpm-{{ vhost.server_name }}.sock;
+        fastcgi_pass unix:/run/php/php7.2-fpm-{{ vhost.server_name }}.sock;
     }
 
     {% endif %}

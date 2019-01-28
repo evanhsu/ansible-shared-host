@@ -1,3 +1,7 @@
+- name: Show php fpm pool path
+  debug:
+    msg: "{{ php_fpm_pool_conf_path | dirname }}"
+
 - name: Create php-fpm pool for {{ item.server_name }}
   template:
     src: php-fpm-pool.conf.j2

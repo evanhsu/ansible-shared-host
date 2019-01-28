@@ -94,6 +94,12 @@ CLIENTS_LIST:
     groups:
       - "clients"
 
+  - &ochoco
+    name: "ochoco"
+    id: 3007
+    groups:
+      - "clients"
+
 user_groups:
   - <<: *developers
   - <<: *clients
@@ -222,3 +228,22 @@ users:
         php: true
         root: "/home/wildrivers/sites/wildrivers.firecrew.us"
 
+  - <<: *ochoco
+
+    databases:
+      - name: "ochoco"
+        collation: "utf8mb4_unicode_ci"
+        encoding: "utf8mb4"
+
+    nodejs:
+      version: 8.2.0
+      packages:
+        - name: yarn
+
+    vhosts:
+      - listen: "443 ssl"
+        ssl: true
+        redirect_from_http: true
+        server_name: "ochoco.firecrew.us"
+        php: true
+        root: "/home/ochoco/sites/ochoco.firecrew.us"

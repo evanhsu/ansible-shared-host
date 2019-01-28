@@ -4,7 +4,7 @@ user = {{ user.name }}
 group = {{ user.name }}
 
 ; Unix user/group of processes
-listen = /run/php/php7.0-fpm-{{ item.server_name }}.sock
+listen = /run/php/php7.2-fpm-{{ item.server_name }}.sock
 
 {% if item.php.fpm is defined %}
 

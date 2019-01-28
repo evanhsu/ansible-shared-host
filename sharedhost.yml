@@ -50,7 +50,7 @@
     - role: tersmitten.htop
 
     # Install NodeJS
-    - role: nvm
+    #- role: nvm
 
     # Install/configure Redis
     # - role: davidwittman.redis
